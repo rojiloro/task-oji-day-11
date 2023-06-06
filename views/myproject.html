@@ -1,0 +1,140 @@
+<html>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <head>
+    <title>Add Project</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- <link rel="stylesheet" href="css/contact.css" /> -->
+    <link rel="stylesheet" href="css/project.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+  </head>
+  <body>
+    <!-- <nav>
+      <div class="left">
+        <ul>
+          <li class="item-collapse"><img src="assets/img/logo.png" alt="logo" class="logo" /></li>
+          <li class="item-collapse"><a href="index.html">Home</a></li>
+          <li class="item-collapse"><a href="myproject.html" class="active">My Project</a></li>
+          <li class="item-collapse"><a href="testimonial.html">Testimonial</a></li>
+        </ul>
+      </div>
+      <div class="right item-collapse">
+        <a href="contact.html">Contact Me</a>
+      </div>
+
+      <div class="nav-right item-collapse" id="barsmenu" onclick="openBurger()">
+        <button style="background-color: transparent; border: none; cursor: pointer">
+          <i class="fa-2x fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </nav> -->
+    <!-- navbar with boostrap -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid text-center d-flex mx-5">
+        <a class="navbar-brand" href="#">
+          <img src="assets/img/logo.png" alt="logo" />
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="myproject.html">Add Project</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="testimonial.html">Testimonial</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-link">
+              <a href="contact.html" class="btn btn-outline-secondary">Contact Me</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+        <div class="row">
+          <div class="col-md fs-5">
+            <form onsubmit="addProject(event)">
+              <h1 class="text-center fs-3 fw-bold">ADD MY PROJECT</h1>
+              <div class="mb-3">
+                <label for="input-project-name" class="form-label">Project Name</label>
+                <input type="text" class="form-control" id="input-project-name" />
+              </div>
+  
+              <div class="input-date row mb-3">
+                <div class="col-6">
+                  <label for="input-start-date" class="form-label">Start Date</label>
+                  <input type="date" class="form-control" id="input-start-date" />
+                </div>
+                <div class="col-6">
+                  <label for="input-end-date" class="form-label">End Date</label>
+                  <input type="date" class="form-control" id="input-end-date" />
+                </div>
+              </div>
+  
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea id="description" class="form-control"></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="tech" class="form-label">Technologies</label>
+                <div class="row">
+                  <div class="col-6 form-check">
+                    <input type="checkbox" class="form-check-input" id="playstore"> 
+                    <label for="playstore" class="form-check-label">playstore
+                    </label>
+                  </div>
+                  <div class="col-6 form-check">
+                    <input type="checkbox" id="java" class="form-check-input"> 
+                    <label for="java" class="form-check-label">Java  
+                    </label>
+                  </div>
+                </div>
+                <div class="row mt-3">
+                  <div class="col-6 form-check">
+                    <input type="checkbox" class="form-check-input" id="android">
+                    <label for="android" class="form-check-label">Android
+                    </label>
+                  </div>
+                  <div class="col-6 form-check">
+                    <input type="checkbox" class="form-check-input" id="react">
+                    <label for="react" class="form-check-label">React  
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label>Upload Image</label>
+                    <div class="input-project-image-group ">
+                      <label for="input-project-image">
+                      <div class="input-group mb-3">
+                        <input type="file" id="input-project-image" class="form-control">
+                        <label class="input-group-text" for="input-project-image"><img src="assets/img/file.png" alt=""></label>
+                      </div>
+                    </label>
+              </div>
+              <div class="text-end mt-3">
+                <button class="btn btn-primary">Submit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+          
+
+    </div>
+    <script src="js/project.js"></script>
+    <script src="js/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  </body>
+</html>

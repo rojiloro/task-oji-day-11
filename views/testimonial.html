@@ -1,0 +1,103 @@
+<html>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <head>
+    <title>Testimonial</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/testimonial.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+  </head>
+  <body>
+    <!-- navbar -->
+    <!-- <nav>
+      <div class="left">
+        <ul>
+          <li class="item-collapse"><img src="assets/img/logo.png" alt="logo" class="logo" /></li>
+          <li class="item-collapse"><a href="index.html">Home</a></li>
+          <li class="item-collapse"><a href="myproject.html">My Project</a></li>
+          <li class="item-collapse"><a href="testimonial.html" class="active">Testimonial</a></li>
+        </ul>
+      </div>
+      <div class="right item-collapse">
+        <a href="contact.html">Contact Me</a>
+      </div>
+
+      <div class="nav-right item-collapse" id="barsmenu" onclick="openBurger()">
+        <button style="background-color: transparent; border: none; cursor: pointer">
+          <i class="fa-2x fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </nav> -->
+    <!-- navbar with boostrap -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid text-center d-flex mx-5">
+        <a class="navbar-brand" href="#">
+          <img src="assets/img/logo.png" alt="logo" />
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="myproject.html">Add Project</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="testimonial.html">Testimonial</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-link">
+              <a href="contact.html" class="btn btn-outline-secondary">Contact Me</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- body testimonial -->
+    <div class="container-testimonial">
+      <h1>Testimonial</h1>
+      <div class="container-rating">
+        <h2>Rating By Stars</h2>
+        <div class="rating">
+          <button class="rating-btn" onclick="getAllTestimonial()">All</button>
+          <button class="rating-btn" onclick="getFilteredTestimonials(1)">1 <i class="fa-solid fa-star"></i></button>
+          <button class="rating-btn" onclick="getFilteredTestimonials(2)">2 <i class="fa-solid fa-star"></i></button>
+          <button class="rating-btn" onclick="getFilteredTestimonials(3)">3 <i class="fa-solid fa-star"></i></button>
+          <button class="rating-btn" onclick="getFilteredTestimonials(4)">4 <i class="fa-solid fa-star"></i></button>
+          <button class="rating-btn" onclick="getFilteredTestimonials(5)">5 <i class="fa-solid fa-star"></i></button>
+        </div>
+      </div>
+      <section class="testimonials" id="testimonial">
+        <!-- <div class="testimonial">
+          <img src="assets/img/img3.jpeg" alt="foto-tanya" class="profile-testimonial" />
+          <p class="quote">Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi, saepe aspernatur porro minus aliquid labore architecto hic ad sunt totam blanditiis rerum debitis dolorem incidunt.</p>
+          <p class="author">Mohammad Fatkhuroji</p>
+        </div>
+        <div class="testimonial">
+          <img src="assets/img/img3.jpeg" alt="foto-tanya" />
+          <p class="quote">Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi, saepe aspernatur porro minus aliquid labore architecto hic ad sunt totam blanditiis rerum debitis dolorem incidunt.</p>
+          <p class="author">Mohammad Fatkhuroji</p>
+        </div>
+        <div class="testimonial">
+          <img src="assets/img/img3.jpeg" alt="foto-tanya" />
+          <p class="quote">Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi, saepe aspernatur porro minus aliquid labore architecto hic ad sunt totam blanditiis rerum debitis dolorem incidunt.</p>
+          <p class="author">Mohammad Fatkhuroji</p>
+          <p class="author"></p>
+        </div> -->
+      </section>
+    </div>
+    <script src="js/index.js"></script>
+    <script src="js/ajax.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  </body>
+</html>
