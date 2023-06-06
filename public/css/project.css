@@ -197,7 +197,7 @@ textarea {
 } */
 
 /* project details */
-/* .detail .container-detail {
+.detail .container-detail {
   width: 990px;
   margin: auto;
 }
@@ -231,18 +231,16 @@ textarea {
   margin-top: -4px;
 }
 
-.tech .jejer { */
-/* background-color: orangered; */
-/* display: flex;
+.tech .jejer {
+  display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   padding-top: 0;
   font-size: 20px;
 }
 
-.jejer p { */
-/* background-color: red; */
-/* display: flex;
+.jejer p {
+  display: flex;
   flex-wrap: wrap;
   margin-top: -3px;
   margin-left: -180px;
@@ -252,7 +250,8 @@ textarea {
   margin-top: 20px;
   text-align: justify;
 }
-@media only screen and (max-width: 900px) {
+
+/*@media only screen and (max-width: 900px) {
   .project-form .form-container {
     width: 300px;
     margin: 15px auto;

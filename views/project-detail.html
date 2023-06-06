@@ -1,8 +1,9 @@
 <html>
   <head>
     <title>Project Detail</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/project.css" />
+    <link rel="stylesheet" href="/public/css/style.css" />
+    <link rel="stylesheet" href="/public/css/project.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -12,31 +13,47 @@
     />
   </head>
   <body>
-    <nav>
-      <div class="left">
-        <ul>
-          <li><img src="assets/img/logo.png" alt="logo" class="logo" /></li>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="myproject.html " class="active">My Project</a></li>
-        </ul>
-      </div>
-      <div class="right">
-        <a href="contact.html">Contact Me</a>
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid text-center d-flex mx-5">
+        <a class="navbar-brand" href="#">
+          <img src="/public/img/logo.png" alt="logo" />
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="myproject">Add Project</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="testimonial">Testimonial</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-link">
+              <a href="contact" class="btn btn-outline-secondary">Contact Me</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
 
     <div class="detail">
       <div class="container-detail" id="detail">
-        <h1>Dumbways Web App</h1>
+        <h1>{{.judul}}</h1>
         <div class="hero">
           <div>
-            <img src="assets/img/phone.jpg" alt="phone" />
+            <img src="/public/img/phone.jpg" alt="phone" />
           </div>
           <div>
             <p class="judul">Duration</p>
             <div class="text">
               <i class="fa-regular fa-calendar"></i>
-              <p>12 Jan 2021 - 11 februrari 2021</p>
+              <p>{{.durasi}}</p>
             </div>
             <p class="judul">Technologies</p>
             <div class="tech">
@@ -56,15 +73,12 @@
           </div>
         </div>
         <div class="paragraph">
-          <p>
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Soluta accusamus eum officia officiis dolorem aperiam, odio, illo veniam odit illum repudiandae dolor praesentium minus, laudantium repellat unde ad. Quisquam odio sint
-            sapiente harum aspernatur maxime magnam debitis quaerat id veniam, blanditiis cupiditate. Laudantium nam quod officiis itaque! Sunt ipsam incidunt nisi, velit libero suscipit soluta dolor culpa eaque reiciendis! Sed nesciunt vel
-            voluptatem incidunt molestias hic exercitationem, reprehenderit possimus in! Iste recusandae voluptate dignissimos, incidunt nisi, explicabo soluta, nesciunt minima reiciendis labore quidem rerum quia optio mollitia? Libero
-            labore tempore repudiandae ad ea aliquam perferendis consectetur qui illum, aspernatur assumenda!
-          </p>
+          <p>{{.detail}}</p>
+          <p>{{.waktu}}</p>
         </div>
       </div>
     </div>
-    <script src="js/detail.js"></script>
+    <script src="public/js/detail.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
   </body>
 </html>
