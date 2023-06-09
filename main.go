@@ -216,3 +216,4 @@ func deleteProject (c echo.Context) error {
 
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
+

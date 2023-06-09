@@ -156,11 +156,14 @@
                     <i class="fa-brands fa-react"></i>
                     {{end}}
                   </div>
-                  <div class="btn m-1">
-                    <button class="edit btn btn-primary">Edit</button>
-                    <button class="delete btn btn-danger">Delete</button>
-                    
-                  </div>
+                  <div class="btn m-1 d-flex justify-content-center">
+                    <form action="/project-edit/%index" method="get">
+                        <input type="submit" value="edit" class="edit btn btn-primary"></input>
+                    </form>
+                    <form action="/deleteProject/{{$index}}" method="post" class="ms-1">  
+                        <input type="submit" class="btn btn-danger" value="delete" />
+                      </form>
+                    </div>
                 </div>
               </div>
             </div>

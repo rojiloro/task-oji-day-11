@@ -58,15 +58,23 @@
             <p class="judul">Technologies</p>
             <div class="tech">
               <div class="jejer">
+                {{if $data.Playstore}}
                 <i class="fa-brands fa-google-play"></i>
+                {{end}}
                 <p>Playstore</p>
+                {{if $data.Android}}
                 <i class="fa-brands fa-android"></i>
+                {{end}}
                 <p>Android</p>
               </div>
               <div class="jejer">
+                {{if $data.Java}}
                 <i class="fa-brands fa-java"></i>
+                {{end}}
                 <p>Java</p>
+                {{if $data.React}}
                 <i class="fa-brands fa-react"></i>
+                {{if $data.Android}}
                 <p>React</p>
               </div>
             </div>
@@ -74,7 +82,6 @@
         </div>
         <div class="paragraph">
           <p>{{$data.Detail}}</p>
-          <p>{{.waktu}}</p>
         </div>
       </div>
     </div>
