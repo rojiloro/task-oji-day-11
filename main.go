@@ -11,6 +11,7 @@ import (
 )
 
 type Project struct {
+	Id int
 	Name string
 	StarDate string
 	EndDate string
@@ -24,6 +25,7 @@ type Project struct {
 
 var dataProject = []Project{
 	{
+		Id: 0,
 		Name: "Project 1",
 		StarDate: "15-05-2023",
 		EndDate: "15-06-2023",
@@ -36,6 +38,7 @@ var dataProject = []Project{
 	},
 	
 	{
+		Id: 1,
 		Name: "Project 2",
 		StarDate: "15-05-2023",
 		EndDate: "15-06-2023",
@@ -62,10 +65,12 @@ func main() {
 	e.GET("/testimonial", testimonial)
 	e.GET("/contact", contact)
 	e.GET("/project-detail", projectDetail)
+	e.GET("/project-edit/:id", editProject)
 	
 	// routing post
 	e.POST("/saveproject", saveProject)
 	e.POST("/deleteProject/:id", deleteProject)
+	e.POST("/updateProject/:id", updateProject)
 
 	e.Logger.Fatal(e.Start("localhost:5001"))
 }
@@ -217,3 +222,105 @@ func deleteProject (c echo.Context) error {
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 
+
+func editProject (c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	var isiProject = Project{}
+
+	for i, data := range dataProject{
+		if id == i {
+			isiProject = Project{
+				Id : id,
+				Name: data.Name,
+				StarDate: data.StarDate,
+				EndDate: data.EndDate,
+				Duration: data.Duration,
+				Detail: data.Detail,
+				Playstore: data.Playstore,
+				Android: data.Android,
+				Java: data.Java,
+				React: data.React,
+			}
+		}
+	}
+
+	data := map[string]interface{}{
+		"Project": isiProject,
+	}
+
+	var tmpl, err = template.ParseFiles("views/update.html")
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return tmpl.Execute(c.Response(), data)
+}
+
+func updateProject (c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))	
+
+	name := c.FormValue("input-project-name")
+	detail := c.FormValue("description")
+	
+	// ambil date input
+	date1 := c.FormValue("input-start-date")
+	date2 := c.FormValue("input-end-date")
+	// parse date input dan formatting
+	uDate1, _ := time.Parse("2006-01-02", date1)
+	starDate := uDate1.Format("2 Jan 2006")
+
+	uDate2, _ := time.Parse("2006-01-02", date2)
+	endDate := uDate2.Format("2 Jan 2006")
+
+	// perhitungan selisih
+	var diffUse string
+	timeDiff := uDate2.Sub(uDate1)
+
+	if timeDiff.Hours()/24 < 30 {
+		tampil := strconv.FormatFloat(timeDiff.Hours()/24, 'f', 0, 64)
+		diffUse = "Duration : " +tampil+" hari"
+	}else if timeDiff.Hours()/24/30 < 12 {
+		tampil := strconv.FormatFloat(timeDiff.Hours()/24/30, 'f', 0, 64)
+		diffUse = "Duration : " +tampil+ " Bulan"
+	}else {
+
+	}
+	// checkbox
+	var playstore bool
+	if c.FormValue("playstore") == "checked"{
+		playstore = true
+	}
+	
+	var android bool
+	if c.FormValue("android") == "checked"{
+		android = true
+	}
+	
+	var java bool
+	if c.FormValue("java") == "checked"{
+		java = true
+	}
+	
+	var react bool
+	if c.FormValue("react") == "checked"{
+		react = true
+	}
+	
+	var updateProject = Project {
+		Name: name,
+		StarDate: starDate,
+		EndDate: endDate,
+		Duration: diffUse,
+		Detail: detail,
+		Playstore: playstore,
+		Android: android,
+		Java: java,
+		React: react,
+	}
+
+	dataProject[id] = updateProject
+
+	return c.Redirect(http.StatusMovedPermanently, "/")
+}
