@@ -212,7 +212,7 @@ func deleteProject (c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	fmt.Println("index: ", id)
 
-	dataProject = append(dataProject[:id], dataProject[:id+1]...)
+	dataProject = append(dataProject[:id], dataProject[id+1:]...)
 
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
