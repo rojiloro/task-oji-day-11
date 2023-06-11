@@ -242,10 +242,12 @@ func saveProject(c echo.Context) error {
 
 func deleteProject (c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
-	fmt.Println("index: ", id)
 
-	dataProject = append(dataProject[:id], dataProject[id+1:]...)
+	_, err := connection.Conn.Exec(context.Background(), "DELETE FROM tb_project WHERE id=$1", id)
 
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 
