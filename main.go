@@ -70,7 +70,7 @@ func main() {
 	e.GET("/myproject", addProject)
 	e.GET("/testimonial", testimonial)
 	e.GET("/contact", contact)
-	e.GET("/project-detail", projectDetail)
+	e.GET("/project-detail/:id", projectDetail)
 	e.GET("/project-edit/:id", editProject)
 	
 	// routing post
@@ -151,20 +151,28 @@ func contact(c echo.Context) error {
 func projectDetail(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	data := map[string]interface{}{
-		"Id": id,
-		"judul": "Dumbways Mobile App - 2021",
-		"durasi": "durasi : 3 bulan",
-		"detail": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iste praesentium explicabo quae architecto aperiam at quis possimus voluptatibus ducimus minima.",
-		"waktu": "17, week 3, jan, 2023",
-	}
+	var projectDetails = Project{}
 
-	var tmpl, err = template.ParseFiles("views/project-detail.html")
+	err := connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_project WHERE id=$1", id).Scan(
+		&projectDetails.Id, &projectDetails.Name, &projectDetails.StartDateTime, &projectDetails.EndDateTime, &projectDetails.Duration, &projectDetails.Detail, &projectDetails.Playstore, &projectDetails.Android, &projectDetails.Java, &projectDetails.React,
+	)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
-
+		return c.JSON(http.StatusInternalServerError, map[string]string {"message":err.Error()})
 	}
+
+	data := map[string]interface{}{
+		"Project": projectDetails,
+		"StarDate" : projectDetails.StartDateTime.Format("01-02-2006"),
+		"EndDate" : projectDetails.EndDateTime.Format("01-02-2006"),
+	}
+
+	var tmpl, errTemp = template.ParseFiles("views/project-detail.html")
+
+	if errTemp != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": errTemp.Error()})
+	}
+
 	return tmpl.Execute(c.Response(), data)
 }
 
@@ -216,24 +224,18 @@ func saveProject(c echo.Context) error {
 		react = true
 	}
 
+	_, err := connection.Conn.Exec(
+		context.Background(),`INSERT INTO tb_project (name, star_date, end_date, duration, detail, playstore, android, java, react)
+		Values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+		name, starDate, endDate, diffUse, detail, playstore, android, java, react,
+	)
 	
-	
-	var newProject = Project{
-		Name: name,
-		StarDate: starDate,
-		EndDate: endDate,
-		Duration: diffUse,
-		Detail: detail,
-		Playstore: playstore,
-		Android: android,
-		Java: java,
-		React: react,
-
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 	}
 
-	dataProject = append(dataProject, newProject)
-
-	fmt.Println(dataProject)
+	// var id int
+	// err = connection.Conn.QueryRow(context.Background(), "SELECT id FROM tb_project WHERE id=(SELECT max(id) FROM tb_project)").Scan(&id)
 
 	return c.Redirect(http.StatusMovedPermanently,"/")
 }
