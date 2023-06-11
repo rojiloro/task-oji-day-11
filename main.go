@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"oji/connection"
 	"strconv"
 	"text/template"
 	"time"
@@ -54,6 +56,8 @@ var dataProject = []Project{
 }
 
 func main() {
+	connection.DatabaseConnect()
+
 	e := echo.New()
 
 	// static file from 'public' directory
@@ -80,16 +84,32 @@ func hai(c echo.Context) error {
 }
 
 func home(c echo.Context) error {
+	data, _ := connection.Conn.Query(context.Background(), "SELECT id, name, star_date, end_date, duration, detail, playstore, android, java, react FROM tb_project")
+
+	var result []Project
+	for data.Next() {
+		var each = Project{}
+
+		err := data.Scan(&each.Id, &each.Name, &each.StarDate, &each.EndDate, &each.Duration, &each.Detail, &each.Playstore, &each.Android, &each.Java, &each.React)
+
+		if err != nil {
+			fmt.Println(err.Error())
+			return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
+		}
+
+		result = append(result, each)
+	}
+	
+	Projects := map[string]interface{}{
+		"Projects" : result,
+	}
+
 	var tmpl, err = template.ParseFiles("views/index.html")
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 	}
 	
-	
-	Projects := map[string]interface{}{
-		"Projects" : dataProject,
-	}
 	return tmpl.Execute(c.Response(), Projects)
 }
 
