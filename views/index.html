@@ -157,7 +157,7 @@
                     {{end}}
                   </div>
                   <div class="btn m-1 d-flex justify-content-center">
-                    <form action="/project-edit/{{$index}}" method="get">
+                    <form action="/project-edit/{{$data.Id}}" method="get">
                         <input type="submit" value="edit" class="edit btn btn-primary"></input>
                     </form>
                     <form action="/deleteProject/{{$data.Id}}" method="post" class="ms-1">  

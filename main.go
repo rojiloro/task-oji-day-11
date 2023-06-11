@@ -27,35 +27,7 @@ type Project struct {
 	EndDateTime time.Time	
 }
 
-var dataProject = []Project{
-	{
-		Id: 0,
-		Name: "Project 1",
-		StarDate: "15-05-2023",
-		EndDate: "15-06-2023",
-		Duration: "1 bulan",
-		Detail: "Bootcamp sebulan gaes",
-		Playstore: true,
-		Android: true,
-		Java: true,
-		React: true,
-	},
-	
-	{
-		Id: 1,
-		Name: "Project 2",
-		StarDate: "15-05-2023",
-		EndDate: "15-06-2023",
-		Duration: "1 bulan",
-		Detail: "Bootcamp sebulan gaes hehe",
-		Playstore: true,
-		Android: true,
-		Java: true,
-		React: true,
-	},
 
-	
-}
 
 func main() {
 	connection.DatabaseConnect()
@@ -257,33 +229,26 @@ func editProject (c echo.Context) error {
 
 	var isiProject = Project{}
 
-	for i, data := range dataProject{
-		if id == i {
-			isiProject = Project{
-				Id : id,
-				Name: data.Name,
-				StarDate: data.StarDate,
-				EndDate: data.EndDate,
-				Duration: data.Duration,
-				Detail: data.Detail,
-				Playstore: data.Playstore,
-				Android: data.Android,
-				Java: data.Java,
-				React: data.React,
-			}
-		}
+	err := connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_project WHERE id=$1", id).Scan(
+		&isiProject.Id, &isiProject.Name, &isiProject.StartDateTime, &isiProject.EndDateTime, &isiProject.Duration, &isiProject.Detail, &isiProject.Playstore, &isiProject.Android, &isiProject.Java, &isiProject.React,
+	)
+	
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 	}
 
 	data := map[string]interface{}{
 		"Project": isiProject,
+		"StarDate" : isiProject.StartDateTime.Format("01-02-2006"),
+		"EndDate" : isiProject.EndDateTime.Format("01-02-2006"),
 	}
 
-	var tmpl, err = template.ParseFiles("views/update.html")
-
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	var tmpl, errTemp = template.ParseFiles("views/update.html")
+	
+	if errTemp != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": errTemp.Error()})
 	}
-
+	
 	return tmpl.Execute(c.Response(), data)
 }
 
@@ -337,19 +302,15 @@ func updateProject (c echo.Context) error {
 		react = true
 	}
 	
-	var updateProject = Project {
-		Name: name,
-		StarDate: starDate,
-		EndDate: endDate,
-		Duration: diffUse,
-		Detail: detail,
-		Playstore: playstore,
-		Android: android,
-		Java: java,
-		React: react,
+	_, err := connection.Conn.Exec(context.Background(),
+			`UPDATE tb_project SET name=$1, star_date=$2, end_date=$3, duration=$4, detail=$5, playstore=$6, android=$7, java=$8, react=$9 WHERE id=$10`,
+			name, starDate, endDate, diffUse, detail, playstore, android, java, react, id,
+			)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 	}
 
-	dataProject[id] = updateProject
 
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
