@@ -22,7 +22,9 @@ type Project struct {
 	Playstore bool
 	Android bool
 	Java bool
-	React bool	
+	React bool
+	StartDateTime time.Time
+	EndDateTime time.Time	
 }
 
 var dataProject = []Project{
@@ -90,12 +92,15 @@ func home(c echo.Context) error {
 	for data.Next() {
 		var each = Project{}
 
-		err := data.Scan(&each.Id, &each.Name, &each.StarDate, &each.EndDate, &each.Duration, &each.Detail, &each.Playstore, &each.Android, &each.Java, &each.React)
+		err := data.Scan(&each.Id, &each.Name, &each.StartDateTime, &each.EndDateTime, &each.Duration, &each.Detail, &each.Playstore, &each.Android, &each.Java, &each.React)
 
 		if err != nil {
 			fmt.Println(err.Error())
 			return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 		}
+
+		each.StarDate = each.StartDateTime.Format("01-02-2006")
+		each.EndDate = each.EndDateTime.Format("01-02-2006")
 
 		result = append(result, each)
 	}
