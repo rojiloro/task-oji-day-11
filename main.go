@@ -50,7 +50,7 @@ func main() {
 	e.POST("/deleteProject/:id", deleteProject)
 	e.POST("/updateProject/:id", updateProject)
 
-	e.Logger.Fatal(e.Start("localhost:5001"))
+	e.Logger.Fatal(e.Start("localhost:5000"))
 }
 
 func hai(c echo.Context) error {
@@ -86,6 +86,8 @@ func home(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 	}
+	// connection.Conn.Close(context.Background())
+	data.Close()
 	
 	return tmpl.Execute(c.Response(), Projects)
 }
@@ -144,6 +146,8 @@ func projectDetail(c echo.Context) error {
 	if errTemp != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": errTemp.Error()})
 	}
+
+	// connection.Conn.Close(context.Background())
 
 	return tmpl.Execute(c.Response(), data)
 }
@@ -206,9 +210,6 @@ func saveProject(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 	}
 
-	// var id int
-	// err = connection.Conn.QueryRow(context.Background(), "SELECT id FROM tb_project WHERE id=(SELECT max(id) FROM tb_project)").Scan(&id)
-
 	return c.Redirect(http.StatusMovedPermanently,"/")
 }
 
@@ -220,6 +221,8 @@ func deleteProject (c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
+	
+	
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 
@@ -246,7 +249,7 @@ func editProject (c echo.Context) error {
 	var tmpl, errTemp = template.ParseFiles("views/update.html")
 	
 	if errTemp != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": errTemp.Error()})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"messagek": errTemp.Error()})
 	}
 	
 	return tmpl.Execute(c.Response(), data)
@@ -310,7 +313,6 @@ func updateProject (c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 	}
-
 
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
