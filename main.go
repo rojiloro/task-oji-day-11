@@ -3,13 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"oji/connection"
+	// "os/user"
 	"strconv"
 	"text/template"
 	"time"
 
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Project struct {
@@ -27,6 +32,19 @@ type Project struct {
 	EndDateTime time.Time	
 }
 
+type User struct {
+	Id int
+	Name string
+	Email string
+	Password string
+}
+
+type SessionData struct {
+	IsLogin bool
+	Name string
+}
+
+var userData = SessionData{}
 
 
 func main() {
@@ -37,6 +55,9 @@ func main() {
 	// static file from 'public' directory
 	e.Static("/public", "public")
 
+	// to use session using echo
+	e.Use(session.Middleware(sessions.NewCookieStore([]byte("session"))))
+
 	e.GET("/hello", hai)
 	e.GET("/", home)
 	e.GET("/myproject", addProject)
@@ -44,6 +65,10 @@ func main() {
 	e.GET("/contact", contact)
 	e.GET("/project-detail/:id", projectDetail)
 	e.GET("/project-edit/:id", editProject)
+	
+	// login
+	e.GET("/login-form", login)
+	e.POST("/login", subLogin)
 	
 	// routing post
 	e.POST("/saveproject", saveProject)
@@ -60,26 +85,45 @@ func hai(c echo.Context) error {
 func home(c echo.Context) error {
 	data, _ := connection.Conn.Query(context.Background(), "SELECT id, name, star_date, end_date, duration, detail, playstore, android, java, react FROM tb_project")
 
+	
+	
+	
 	var result []Project
 	for data.Next() {
 		var each = Project{}
-
+		
 		err := data.Scan(&each.Id, &each.Name, &each.StartDateTime, &each.EndDateTime, &each.Duration, &each.Detail, &each.Playstore, &each.Android, &each.Java, &each.React)
-
+		
 		if err != nil {
 			fmt.Println(err.Error())
 			return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 		}
-
+		
 		each.StarDate = each.StartDateTime.Format("01-02-2006")
 		each.EndDate = each.EndDateTime.Format("01-02-2006")
-
+		
 		result = append(result, each)
+	}
+	
+	sess, _ := session.Get("session", c)
+
+	if sess.Values["isLogin"] != true {
+		userData.IsLogin = false
+	} else {
+		userData.IsLogin = sess.Values["isLogin"].(bool)
+		userData.Name = sess.Values["name"].(string)
 	}
 	
 	Projects := map[string]interface{}{
 		"Projects" : result,
+		"FlashStatus" : sess.Values["status"],
+		"FlashMessage" : sess.Values["message"],
+		"DataSession" : userData,
 	}
+
+	delete(sess.Values, "message")
+	delete(sess.Values, "status")
+	sess.Save(c.Request(), c.Response())
 
 	var tmpl, err = template.ParseFiles("views/index.html")
 
@@ -315,4 +359,57 @@ func updateProject (c echo.Context) error {
 	}
 
 	return c.Redirect(http.StatusMovedPermanently, "/")
+}
+
+func login (c echo.Context) error {
+	var tmpl, err = template.ParseFiles("views/login.html")
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
+	}
+
+	return tmpl.Execute(c.Response(), nil)	
+}
+
+func subLogin (c echo.Context) error {
+	err := c.Request().ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	email := c.FormValue("input-username")
+	password := c.FormValue("input-password")
+
+	user := User{}
+	err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM Users WHERE email=$1", email).Scan(&user.Id,  &user.Name, &user.Email, &user.Password)
+
+	if err != nil {
+		return redirectWithMessage(c, "Email Incorrect!", false, "/form-login")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		return redirectWithMessage(c,"Password Incorrect!", false, "/form-login")
+	}
+	
+	sess, _ := session.Get("session", c)
+	sess.Options.MaxAge = 10800 //3 jam
+	sess.Values["message"] = "Login success!"
+	sess.Values["status"] = true
+	sess.Values["name"] = user.Name
+	sess.Values["email"] = user.Email
+	sess.Values["id"] = user.Id
+	sess.Values["isLogin"] = true
+	sess.Save(c.Request(), c.Response())
+
+	return c.Redirect(http.StatusMovedPermanently, "/")
+	
+}
+
+func redirectWithMessage(c echo.Context, message string, status bool, path string) error {
+	sess, _ := session.Get("session", c)
+	sess.Values["message"] = message
+	sess.Values["status"] = status
+	sess.Save(c.Request(), c.Response())
+	return c.Redirect(http.StatusMovedPermanently, path)
 }
