@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+
 	// "image"
 	"log"
 	"net/http"
@@ -83,11 +84,10 @@ func main() {
 	e.POST("/register", register)
 	
 	// routing post
-	e.POST("/saveproject", saveProject)
+	e.POST("/saveproject", middleware.UploadFile(saveProject))
 	e.POST("/deleteProject/:id", deleteProject)
-	e.POST("/updateProject/:id", updateProject)
-	e.POST("/myproject", middleware.UploadFile(saveProject))
-	e.POST("/project-edit/:id", middleware.UploadFile(updateProject))
+	e.POST("/updateProject/:id",middleware.UploadFile (updateProject))
+	
 
 	e.Logger.Fatal(e.Start("localhost:5000"))
 }
@@ -421,9 +421,11 @@ func updateProject (c echo.Context) error {
 		react = true
 	}
 	
+	image := c.Get("dataFile").(string)
+	
 	_, err := connection.Conn.Exec(context.Background(),
-			`UPDATE tb_project SET name=$1, star_date=$2, end_date=$3, duration=$4, detail=$5, playstore=$6, android=$7, java=$8, react=$9, image='img.png' WHERE id=$10`,
-			name, starDate, endDate, diffUse, detail, playstore, android, java, react, id,
+			`UPDATE tb_project SET name=$1, star_date=$2, end_date=$3, duration=$4, detail=$5, playstore=$6, android=$7, java=$8, react=$9, image=$10 WHERE id=$11`,
+			name, starDate, endDate, diffUse, detail, playstore, android, java, react, image, id,
 			)
 
 	if err != nil {
