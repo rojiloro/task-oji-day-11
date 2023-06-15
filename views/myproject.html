@@ -61,6 +61,21 @@
             </li>
           </ul>
           <ul class="navbar-nav ms-auto">
+            {{if .DataSession.IsLogin}}
+            <a href="#" style="text-decoration: none; color: black"
+              >Hello, {{.DataSession.Name}}</a
+            >
+            <form id="myform" action="/logout" method="POST"></form>
+            <button
+              onclick="document.getElementById('myform').submit()"
+              class="btn-auth"
+            >
+              Logout
+            </button>
+            {{else}}
+            <a href="/form-register" class="btn-auth">Register</a>
+            <a href="/form-login" class="btn-auth">Login</a>
+            {{end}}
             <li class="nav-link">
               <a href="contact" class="btn btn-outline-secondary">Contact Me</a>
             </li>
@@ -70,7 +85,7 @@
     </nav>
         <div class="row">
           <div class="col-md fs-5">
-            <form action="/saveproject" method="POST">
+            <form action="/saveproject" method="POST" enctype="multipart/form-data">
               <h1 class="text-center fs-3 fw-bold">ADD MY PROJECT</h1>
               <div class="mb-3">
                 <label for="input-project-name" class="form-label">Project Name</label>
@@ -124,7 +139,7 @@
                     <div class="input-project-image-group ">
                       <label for="input-project-image">
                       <div class="input-group mb-3">
-                        <input type="file" id="input-project-image" class="form-control">
+                        <input type="file" id="input-project-image" class="form-control" name="inputImage">
                         <label class="input-group-text" for="input-project-image"><img src="public/img/file.png" alt=""></label>
                       </div>
                     </label>

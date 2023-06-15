@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	// "image"
 	"log"
 	"net/http"
 	"oji/connection"
+	"oji/middleware"
 
 	// "os/user"
 	"strconv"
@@ -31,6 +33,9 @@ type Project struct {
 	React bool
 	StartDateTime time.Time
 	EndDateTime time.Time	
+	Image string
+	Author string
+	AuthorId int
 }
 
 type User struct {
@@ -55,6 +60,7 @@ func main() {
 
 	// static file from 'public' directory
 	e.Static("/public", "public")
+	e.Static("/uploads", "uploads")
 
 	// to use session using echo
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte("session"))))
@@ -80,6 +86,8 @@ func main() {
 	e.POST("/saveproject", saveProject)
 	e.POST("/deleteProject/:id", deleteProject)
 	e.POST("/updateProject/:id", updateProject)
+	e.POST("/myproject", middleware.UploadFile(saveProject))
+	e.POST("/project-edit/:id", middleware.UploadFile(updateProject))
 
 	e.Logger.Fatal(e.Start("localhost:5000"))
 }
@@ -89,16 +97,25 @@ func hai(c echo.Context) error {
 }
 
 func home(c echo.Context) error {
-	data, _ := connection.Conn.Query(context.Background(), "SELECT id, name, star_date, end_date, duration, detail, playstore, android, java, react FROM tb_project")
+	
+	sess, _ := session.Get("session", c)
+	
+	if sess.Values["isLogin"] != true {
+		userData.IsLogin = false
+	} else {
+		userData.IsLogin = sess.Values["isLogin"].(bool)
+		userData.Name = sess.Values["name"].(string)
+	}
+	data, _ := connection.Conn.Query(context.Background(), `select tb_project.id, name, star_date, end_date, duration, detail, playstore, android, java, react, image, authorid, tb_users.username
+	as author from tb_project
+	left join tb_users
+	on tb_project.authorId = tb_users.id`)
 
-	
-	
-	
 	var result []Project
 	for data.Next() {
 		var each = Project{}
 		
-		err := data.Scan(&each.Id, &each.Name, &each.StartDateTime, &each.EndDateTime, &each.Duration, &each.Detail, &each.Playstore, &each.Android, &each.Java, &each.React)
+		err := data.Scan(&each.Id, &each.Name, &each.StartDateTime, &each.EndDateTime, &each.Duration, &each.Detail, &each.Playstore, &each.Android, &each.Java, &each.React, &each.Image,&each.AuthorId, &each.Author)
 		
 		if err != nil {
 			fmt.Println(err.Error())
@@ -109,15 +126,6 @@ func home(c echo.Context) error {
 		each.EndDate = each.EndDateTime.Format("01-02-2006")
 		
 		result = append(result, each)
-	}
-	
-	sess, _ := session.Get("session", c)
-
-	if sess.Values["isLogin"] != true {
-		userData.IsLogin = false
-	} else {
-		userData.IsLogin = sess.Values["isLogin"].(bool)
-		userData.Name = sess.Values["name"].(string)
 	}
 	
 	Projects := map[string]interface{}{
@@ -143,33 +151,84 @@ func home(c echo.Context) error {
 }
 
 func addProject(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+
+	if sess.Values["isLogin"] != true {
+		userData.IsLogin = false
+	} else {
+		userData.IsLogin = sess.Values["isLogin"].(bool)
+		userData.Name = sess.Values["name"].(string)
+	}
+
+	projects := map[string]interface{}{
+		"DataSession": userData,
+	}
+
+	delete(sess.Values, "message")
+	delete(sess.Values, "status")
+	sess.Save(c.Request(), c.Response())
+
 	var tmpl, err = template.ParseFiles("views/myproject.html")
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 	}
 
-	return tmpl.Execute(c.Response(), nil)
+	return tmpl.Execute(c.Response(), projects)
 }
 
 func testimonial(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+
+	if sess.Values["isLogin"] != true {
+		userData.IsLogin = false
+	} else {
+		userData.IsLogin = sess.Values["isLogin"].(bool)
+		userData.Name = sess.Values["name"].(string)
+	}
+
+	projects := map[string]interface{}{
+		"DataSession": userData,
+	}
+
+	delete(sess.Values, "message")
+	delete(sess.Values, "status")
+	sess.Save(c.Request(), c.Response())
+
 	var tmpl, err = template.ParseFiles("views/testimonial.html")
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 	}
 
-	return tmpl.Execute(c.Response(), nil)
+	return tmpl.Execute(c.Response(), projects)
 }
 
 func contact(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+
+	if sess.Values["isLogin"] != true {
+		userData.IsLogin = false
+	} else {
+		userData.IsLogin = sess.Values["isLogin"].(bool)
+		userData.Name = sess.Values["name"].(string)
+	}
+
+	projects := map[string]interface{}{
+		"DataSession": userData,
+	}
+
+	delete(sess.Values, "message")
+	delete(sess.Values, "status")
+	sess.Save(c.Request(), c.Response())
+
 	var tmpl, err = template.ParseFiles("views/contact.html")
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 	}
 
-	return tmpl.Execute(c.Response(), nil)
+	return tmpl.Execute(c.Response(), projects)
 }
 
 func projectDetail(c echo.Context) error {
@@ -177,18 +236,28 @@ func projectDetail(c echo.Context) error {
 
 	var projectDetails = Project{}
 
-	err := connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_project WHERE id=$1", id).Scan(
-		&projectDetails.Id, &projectDetails.Name, &projectDetails.StartDateTime, &projectDetails.EndDateTime, &projectDetails.Duration, &projectDetails.Detail, &projectDetails.Playstore, &projectDetails.Android, &projectDetails.Java, &projectDetails.React,
+	err := connection.Conn.QueryRow(context.Background(), "SELECT tb_project.id, name, star_date, end_date, duration, detail, playstore, android, java, react, image, tb_users.name AS author FROM tb_project JOIN tb_users ON tb_project.author_id = tb_users.id  WHERE tb_project.id=$1", id).Scan(
+		&projectDetails.Id, &projectDetails.Name, &projectDetails.StartDateTime, &projectDetails.EndDateTime, &projectDetails.Duration, &projectDetails.Detail, &projectDetails.Playstore, &projectDetails.Android, &projectDetails.Java, &projectDetails.React, &projectDetails.Image, &projectDetails.Author,
 	)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string {"message":err.Error()})
 	}
 
+	sess, _ := session.Get("session", c)
+
+	if sess.Values["isLogin"] != true {
+		userData.IsLogin = false
+	} else {
+		userData.IsLogin = sess.Values["isLogin"].(bool)
+		userData.Name = sess.Values["name"].(string)
+	}
+
 	data := map[string]interface{}{
 		"Project": projectDetails,
 		"StarDate" : projectDetails.StartDateTime.Format("01-02-2006"),
 		"EndDate" : projectDetails.EndDateTime.Format("01-02-2006"),
+		"DataSession" : userData,
 	}
 
 	var tmpl, errTemp = template.ParseFiles("views/project-detail.html")
@@ -203,6 +272,7 @@ func projectDetail(c echo.Context) error {
 }
 
 func saveProject(c echo.Context) error {
+	
 	name := c.FormValue("input-project-name")
 	detail := c.FormValue("description")
 	
@@ -226,8 +296,6 @@ func saveProject(c echo.Context) error {
 	}else if timeDiff.Hours()/24/30 < 12 {
 		tampil := strconv.FormatFloat(timeDiff.Hours()/24/30, 'f', 0, 64)
 		diffUse = "Duration : " +tampil+ " Bulan"
-	}else {
-
 	}
 	// checkbox
 	var playstore bool
@@ -250,11 +318,11 @@ func saveProject(c echo.Context) error {
 		react = true
 	}
 
-	_, err := connection.Conn.Exec(
-		context.Background(),`INSERT INTO tb_project (name, star_date, end_date, duration, detail, playstore, android, java, react)
-		Values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-		name, starDate, endDate, diffUse, detail, playstore, android, java, react,
-	)
+	image := c.Get("dataFile").(string)
+	sess, _ := session.Get("session", c)
+	author := sess.Values["id"].(int)
+
+	_, err := connection.Conn.Exec(context.Background(),"INSERT INTO tb_project(name, star_date, end_date, duration,detail,playstore, android, java, react, image, authorid) Values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", name, starDate, endDate, diffUse, detail, playstore, android, java, react, image, author)
 	
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
@@ -283,7 +351,7 @@ func editProject (c echo.Context) error {
 	var isiProject = Project{}
 
 	err := connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_project WHERE id=$1", id).Scan(
-		&isiProject.Id, &isiProject.Name, &isiProject.StartDateTime, &isiProject.EndDateTime, &isiProject.Duration, &isiProject.Detail, &isiProject.Playstore, &isiProject.Android, &isiProject.Java, &isiProject.React,
+		&isiProject.Id, &isiProject.Name, &isiProject.StartDateTime, &isiProject.EndDateTime, &isiProject.Duration, &isiProject.Detail, &isiProject.Playstore, &isiProject.Android, &isiProject.Java, &isiProject.React, &isiProject.Image, &isiProject.AuthorId,
 	)
 	
 	if err != nil {
@@ -328,11 +396,9 @@ func updateProject (c echo.Context) error {
 	if timeDiff.Hours()/24 < 30 {
 		tampil := strconv.FormatFloat(timeDiff.Hours()/24, 'f', 0, 64)
 		diffUse = "Duration : " +tampil+" hari"
-	}else if timeDiff.Hours()/24/30 < 12 {
+	}else {
 		tampil := strconv.FormatFloat(timeDiff.Hours()/24/30, 'f', 0, 64)
 		diffUse = "Duration : " +tampil+ " Bulan"
-	}else {
-
 	}
 	// checkbox
 	var playstore bool
@@ -356,7 +422,7 @@ func updateProject (c echo.Context) error {
 	}
 	
 	_, err := connection.Conn.Exec(context.Background(),
-			`UPDATE tb_project SET name=$1, star_date=$2, end_date=$3, duration=$4, detail=$5, playstore=$6, android=$7, java=$8, react=$9 WHERE id=$10`,
+			`UPDATE tb_project SET name=$1, star_date=$2, end_date=$3, duration=$4, detail=$5, playstore=$6, android=$7, java=$8, react=$9, image='img.png' WHERE id=$10`,
 			name, starDate, endDate, diffUse, detail, playstore, android, java, react, id,
 			)
 
