@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"oji/connection"
+
 	// "os/user"
 	"strconv"
 	"text/template"
@@ -67,8 +68,13 @@ func main() {
 	e.GET("/project-edit/:id", editProject)
 	
 	// login
-	e.GET("/login-form", login)
+	e.GET("/form-login", formLogin)
 	e.POST("/login", subLogin)
+	e.POST("logout", logout)
+
+	// Register
+	e.GET("/form-register", formRegister)
+	e.POST("/register", register)
 	
 	// routing post
 	e.POST("/saveproject", saveProject)
@@ -361,14 +367,56 @@ func updateProject (c echo.Context) error {
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 
-func login (c echo.Context) error {
+func formRegister (c echo.Context) error {
+	var tmpl, err = template.ParseFiles("views/register.html")
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return tmpl.Execute(c.Response(), nil)
+}
+
+func register (c echo.Context) error {
+	err := c.Request().ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	name := c.FormValue("input-username")
+	email := c.FormValue("input-email")
+	password := c.FormValue("input-password")
+
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
+
+	_, err = connection.Conn.Exec(context.Background(), "INSERT INTO tb_users(username, email, password) VALUES ($1, $2, $3)", name, email, passwordHash)
+
+	if err != nil {
+		redirectWithMessage(c, "Register failed, please try again.", false, "/form-register")
+	}
+
+	return redirectWithMessage(c, "Register success!", true, "/form-login")
+}
+
+func formLogin (c echo.Context) error {
+	sess, _ := session.Get("session", c)
+	
+	flash := map[string]interface{}{
+		"FlashStatus" : sess.Values["status"],
+		"FlashMessage" : sess.Values["message"],
+	}
+
+	delete(sess.Values, "message")
+	delete(sess.Values, "status")
+	sess.Save(c.Request(), c.Response())
+
 	var tmpl, err = template.ParseFiles("views/login.html")
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message":err.Error()})
 	}
 
-	return tmpl.Execute(c.Response(), nil)	
+	return tmpl.Execute(c.Response(), flash)	
 }
 
 func subLogin (c echo.Context) error {
@@ -377,11 +425,11 @@ func subLogin (c echo.Context) error {
 		log.Fatal(err)
 	}
 
-	email := c.FormValue("input-username")
+	email := c.FormValue("input-email")
 	password := c.FormValue("input-password")
 
 	user := User{}
-	err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM Users WHERE email=$1", email).Scan(&user.Id,  &user.Name, &user.Email, &user.Password)
+	err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_users WHERE email=$1", email).Scan(&user.Id,  &user.Name, &user.Email, &user.Password)
 
 	if err != nil {
 		return redirectWithMessage(c, "Email Incorrect!", false, "/form-login")
@@ -404,6 +452,14 @@ func subLogin (c echo.Context) error {
 
 	return c.Redirect(http.StatusMovedPermanently, "/")
 	
+}
+
+func logout(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+	sess.Options.MaxAge = -1
+	sess.Save(c.Request(), c.Response())
+
+	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 
 func redirectWithMessage(c echo.Context, message string, status bool, path string) error {

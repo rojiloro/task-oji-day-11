@@ -40,6 +40,28 @@ nav ul li .active {
 .card .durasi {
   margin-top: -40px !important;
 }
+.nav-left {
+  flex: 50%;
+  /* mengatur lebarnya */
+}
+
+.nav-right {
+  flex: 50%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  text-align: end;
+  margin-right: 25px;
+}
+
+.nav-right .btn-auth {
+  font-size: 15px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 10px;
+  color: black;
+  text-decoration: none;
+}
 
 /* nav {
   background-color: #f4f3f3;
