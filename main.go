@@ -456,14 +456,23 @@ func register (c echo.Context) error {
 	password := c.FormValue("input-password")
 
 	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
-
-	_, err = connection.Conn.Exec(context.Background(), "INSERT INTO tb_users(username, email, password) VALUES ($1, $2, $3)", name, email, passwordHash)
-
-	if err != nil {
-		redirectWithMessage(c, "Register failed, please try again.", false, "/form-register")
+	
+	// pe er
+	user := User{}
+	err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_users WHERE email=$1", email).Scan(&user.Id,  &user.Name, &user.Email, &user.Password)
+	
+	if err == nil  {
+		return redirectWithMessage(c, "Email yang anda masukan sudah ada!",  true, "/form-register")
 	}
 
+	_, err = connection.Conn.Exec(context.Background(), "INSERT INTO tb_users(username, email, password) VALUES ($1, $2, $3)", name, email, passwordHash)
+	
+	if err != nil {
+		return redirectWithMessage(c, "Register failed, please try again.", false, "/form-register")
+	}
+	
 	return redirectWithMessage(c, "Register success!", true, "/form-login")
+
 }
 
 func formLogin (c echo.Context) error {
@@ -505,7 +514,7 @@ func subLogin (c echo.Context) error {
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return redirectWithMessage(c,"Password Incorrect!", false, "/form-login")
+		return redirectWithMessage(c,"Password Incorrect!", false , "/form-login")
 	}
 	
 	sess, _ := session.Get("session", c)
